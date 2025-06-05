@@ -1,6 +1,6 @@
 ---
 - name: Install Windows Updates via WSUS
-  hosts: vm1
+  hosts: windows
   gather_facts: true
 
   tasks:
