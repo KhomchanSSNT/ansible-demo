@@ -1,41 +1,44 @@
----
-- name: Install Windows Updates via WSUS
+- name: Install Specific Windows Updates via WSUS
   hosts: windows
   gather_facts: true
 
   tasks:
     - name: Install KB3084905
-      win_updates:
-        kb: KB3084905
-        state: installed
+      ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
           - CriticalUpdates
+        whitelist:
+          - KB3084905
         use_wsus: true
+        reboot: no
 
     - name: Install KB3013816
-      win_updates:
-        kb: KB3013816
-        state: installed
+      ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
           - CriticalUpdates
+        whitelist:
+          - KB3013816
         use_wsus: true
+        reboot: no
 
     - name: Install KB3013769
-      win_updates:
-        kb: KB3013769
-        state: installed
+      ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
           - CriticalUpdates
+        whitelist:
+          - KB3013769
         use_wsus: true
+        reboot: no
 
     - name: Install KB3102429
-      win_updates:
-        kb: KB3102429
-        state: installed
+      ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
           - CriticalUpdates
+        whitelist:
+          - KB3102429
         use_wsus: true
+        reboot: no

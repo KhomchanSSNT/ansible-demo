@@ -1,11 +1,13 @@
-- name: Test create file
-  hosts: rhel
+- name: Update selected packages from survey input
+  hosts: all
   become: true
+  vars:
+    target_packages: []
+
   tasks:
-    - name: Create a file with content "test"
-      copy:
-        dest: /tmp/test.txt
-        content: "test\n"
-        owner: student
-        group: student
-        mode: '0644'
+    - name: Update selected packages
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: latest
+      loop: "{{ target_packages }}"
+      when: target_packages | length > 0
