@@ -1,12 +1,12 @@
 ---
-- name: Check and update selected packages from user input
+- name: Print available updates and update selected packages
   hosts: all
   become: true
   vars:
-    package_input: ""   # Passed via AWX survey (free text)
+    package_input: ""  # Passed via AWX survey (e.g., "bash vim")
 
   tasks:
-    - name: Convert package_input (string) to list
+    - name: Convert package_input string to list
       ansible.builtin.set_fact:
         target_packages: "{{ package_input.split() }}"
 
@@ -20,52 +20,20 @@
       changed_when: false
       failed_when: false
 
-    - name: Print raw check-update output
+    - name: Print available updates (raw check-update output)
       ansible.builtin.debug:
-        msg: "{{ yum_updates.stdout_lines }}"
-      when: yum_updates.stdout_lines | length > 0
-
-    - name: Extract full package names from check-update output
-      ansible.builtin.set_fact:
-        available_updates: >-
-          {{ yum_updates.stdout_lines
-             | select('match', '^[a-zA-Z0-9_.+-]+\\s+[0-9:.a-zA-Z~_-]+\\s+[a-zA-Z0-9._-]+$')
-             | map('regex_search', '^([a-zA-Z0-9_.+-]+)')
-             | list }}
-
-    - name: Normalize package names for comparison
-      ansible.builtin.set_fact:
-        normalized_updates: "{{ available_updates | map('regex_replace', '\\..*$', '') | list }}"
-
-    - name: Filter user input against normalized update list
-      ansible.builtin.set_fact:
-        valid_updates: "{{ target_packages | select('in', normalized_updates) | list }}"
-
-    - name: Map full package names based on valid user input
-      ansible.builtin.set_fact:
-        full_valid_updates: >-
-          {{ available_updates
-             | select('regex_search', '^(%s)\\.' % ('|'.join(valid_updates)))
-             | list }}
-
-    - name: Print valid packages to be updated
-      ansible.builtin.debug:
-        msg: >-
-          ===== Valid Packages to Update =====
-          {% for package in full_valid_updates %}
+        msg: |
+          ===== YUM Check-Update Output =====
           {% for line in yum_updates.stdout_lines %}
-          {% if line.startswith(package + ' ') %}
           {{ line }}
-          {% endif %}
           {% endfor %}
-          {% endfor %}
-          {% if not full_valid_updates %}
-          None of the specified packages are updatable.
-          {% endif %}
 
-    - name: Update selected valid packages
+    - name: Print user-selected packages
+      ansible.builtin.debug:
+        msg: "Updating the following packages from input: {{ target_packages }}"
+
+    - name: Update specified packages
       ansible.builtin.yum:
         name: "{{ item }}"
         state: latest
-      loop: "{{ full_valid_updates }}"
-      when: full_valid_updates | length > 0
+      loop: "{{ target_packages }}"
