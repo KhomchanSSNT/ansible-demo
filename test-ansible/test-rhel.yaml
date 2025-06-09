@@ -1,0 +1,11 @@
+- name: Test create file
+  hosts: rhel
+  become: true
+  tasks:
+    - name: Create a file with content "test"
+      copy:
+        dest: /tmp/test.txt
+        content: "test\n"
+        owner: student
+        group: student
+        mode: '0644'
