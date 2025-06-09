@@ -1,13 +1,52 @@
-- name: Update selected packages from survey input
+---
+- name: Check and update selected packages from user input
   hosts: all
   become: true
   vars:
-    target_packages: []
-
+    package_input: ""   # This is passed via AWX survey (free text)
+  
   tasks:
-    - name: Update selected packages
+
+    - name: Convert package_input (string) to list
+      ansible.builtin.set_fact:
+        target_packages: "{{ package_input.split() }}"
+
+    - name: Get list of available updates
+      ansible.builtin.command: yum check-update
+      register: yum_updates
+      changed_when: false
+      failed_when: false
+
+    - name: Get list of available updates
+      ansible.builtin.command: yum --quiet --assumeno update
+      register: yum_updates
+      changed_when: false
+      failed_when: false
+
+    - name: Extract package names from available updates
+      ansible.builtin.set_fact:
+        available_updates: >-
+          {{ yum_updates.stdout_lines | select('match', '^[a-zA-Z0-9._+-]+\\.') | map('split') | map('first') | list }}
+
+    - name: Print available updates
+      ansible.builtin.debug:
+        msg: |
+          ===== Available Updates =====
+          {{ available_updates | join('\n') }}
+
+    - name: Filter user input against available updates
+      ansible.builtin.set_fact:
+        valid_updates: "{{ target_packages | select('in', available_updates) | list }}"
+
+    - name: Print valid packages to be updated
+      ansible.builtin.debug:
+        msg: |
+          ===== Valid Packages to Update =====
+          {{ valid_updates | join(', ') if valid_updates else 'None of the specified packages are updatable.' }}
+
+    - name: Update selected valid packages
       ansible.builtin.yum:
         name: "{{ item }}"
         state: latest
-      loop: "{{ target_packages }}"
-      when: target_packages | length > 0
+      loop: "{{ valid_updates }}"
+      when: valid_updates | length > 0
