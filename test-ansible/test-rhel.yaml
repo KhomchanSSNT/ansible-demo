@@ -36,7 +36,7 @@
 
     - name: Print available updates with details
       ansible.builtin.debug:
-        msg: |-
+        msg: >-
           ===== Available Updates =====
           {% for line in yum_updates.stdout_lines %}
           {% if line | regex_search('^[a-zA-Z0-9_.+-]+\\s+\\S+') %}
@@ -50,7 +50,7 @@
 
     - name: Print valid packages to be updated
       ansible.builtin.debug:
-        msg: |-
+        msg: >-
           ===== Valid Packages to Update =====
           {% for package in valid_updates %}
           {% for line in yum_updates.stdout_lines %}
