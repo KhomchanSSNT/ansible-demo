@@ -29,9 +29,8 @@
       ansible.builtin.set_fact:
         available_updates: >-
           {{ yum_updates.stdout_lines
-             | select('match', '^[a-zA-Z0-9_.+-]+\\s+\\S+')
-             | map('split')
-             | map('first')
+             | select('match', '^[a-zA-Z0-9_.+-]+\\s+[0-9:.a-zA-Z~_-]+\\s+[a-zA-Z0-9._-]+$')
+             | map('regex_search', '^([a-zA-Z0-9_.+-]+)')
              | list }}
 
     - name: Filter user input against available updates
