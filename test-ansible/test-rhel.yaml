@@ -20,20 +20,29 @@
       changed_when: false
       failed_when: false
 
+    - name: Print raw check-update output
+      ansible.builtin.debug:
+        msg: "{{ yum_updates.stdout_lines }}"
+      when: yum_updates.stdout_lines | length > 0
+
     - name: Extract available update package names
       ansible.builtin.set_fact:
         available_updates: >-
           {{ yum_updates.stdout_lines
-             | select('match', '^[a-zA-Z0-9_.+-]+\\s+\\S+') 
-             | map('split') 
-             | map('first') 
+             | select('match', '^[a-zA-Z0-9_.+-]+\\s+\\S+')
+             | map('split')
+             | map('first')
              | list }}
 
-    - name: Print available updates
+    - name: Print available updates with details
       ansible.builtin.debug:
-        msg: >-
+        msg: |-
           ===== Available Updates =====
-          {{ '\n'.join(available_updates) if available_updates else 'No updates available.' }}
+          {% for line in yum_updates.stdout_lines %}
+          {% if line | regex_search('^[a-zA-Z0-9_.+-]+\\s+\\S+') %}
+          {{ line }}
+          {% endif %}
+          {% endfor %}
 
     - name: Filter user input against available updates
       ansible.builtin.set_fact:
@@ -41,9 +50,18 @@
 
     - name: Print valid packages to be updated
       ansible.builtin.debug:
-        msg: >-
+        msg: |-
           ===== Valid Packages to Update =====
-          {{ ', '.join(valid_updates) if valid_updates else 'None of the specified packages are updatable.' }}
+          {% for package in valid_updates %}
+          {% for line in yum_updates.stdout_lines %}
+          {% if line.startswith(package + ' ') %}
+          {{ line }}
+          {% endif %}
+          {% endfor %}
+          {% endfor %}
+          {% if not valid_updates %}
+          None of the specified packages are updatable.
+          {% endif %}
 
     - name: Update selected valid packages
       ansible.builtin.yum:
