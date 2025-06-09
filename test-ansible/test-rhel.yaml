@@ -24,7 +24,7 @@
       ansible.builtin.set_fact:
         available_updates: >-
           {{ yum_updates.stdout_lines
-             | select('match', '^[a-zA-Z0-9._+-]+\\.') 
+             | select('match', '^[a-zA-Z0-9_.+-]+\\s+\\S+') 
              | map('split') 
              | map('first') 
              | list }}
