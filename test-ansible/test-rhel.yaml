@@ -3,7 +3,7 @@
   hosts: all
   become: true
   vars:
-    package_input: ""   # This is passed via AWX survey (free text)
+    package_input: ""   # Passed via AWX survey (free text)
 
   tasks:
     - name: Convert package_input (string) to list
@@ -25,7 +25,7 @@
         msg: "{{ yum_updates.stdout_lines }}"
       when: yum_updates.stdout_lines | length > 0
 
-    - name: Extract available update package names
+    - name: Extract full package names from check-update output
       ansible.builtin.set_fact:
         available_updates: >-
           {{ yum_updates.stdout_lines
@@ -33,22 +33,33 @@
              | map('regex_search', '^([a-zA-Z0-9_.+-]+)')
              | list }}
 
-    - name: Filter user input against available updates
+    - name: Normalize package names for comparison
       ansible.builtin.set_fact:
-        valid_updates: "{{ target_packages | select('in', available_updates) | list }}"
+        normalized_updates: "{{ available_updates | map('regex_replace', '\\..*$', '') | list }}"
+
+    - name: Filter user input against normalized update list
+      ansible.builtin.set_fact:
+        valid_updates: "{{ target_packages | select('in', normalized_updates) | list }}"
+
+    - name: Map full package names based on valid user input
+      ansible.builtin.set_fact:
+        full_valid_updates: >-
+          {{ available_updates
+             | select('regex_search', '^(%s)\\.' % ('|'.join(valid_updates)))
+             | list }}
 
     - name: Print valid packages to be updated
       ansible.builtin.debug:
         msg: >-
           ===== Valid Packages to Update =====
-          {% for package in valid_updates %}
+          {% for package in full_valid_updates %}
           {% for line in yum_updates.stdout_lines %}
           {% if line.startswith(package + ' ') %}
           {{ line }}
           {% endif %}
           {% endfor %}
           {% endfor %}
-          {% if not valid_updates %}
+          {% if not full_valid_updates %}
           None of the specified packages are updatable.
           {% endif %}
 
@@ -56,5 +67,5 @@
       ansible.builtin.yum:
         name: "{{ item }}"
         state: latest
-      loop: "{{ valid_updates }}"
-      when: valid_updates | length > 0
+      loop: "{{ full_valid_updates }}"
+      when: full_valid_updates | length > 0
