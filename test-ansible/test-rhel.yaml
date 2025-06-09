@@ -10,6 +10,10 @@
       ansible.builtin.set_fact:
         target_packages: "{{ package_input.split() }}"
 
+    - name: Clean yum metadata cache
+      ansible.builtin.command: yum clean metadata
+      changed_when: false
+
     - name: Run yum check-update
       ansible.builtin.command: yum check-update
       register: yum_updates
@@ -27,9 +31,9 @@
 
     - name: Print available updates
       ansible.builtin.debug:
-        msg: |
+        msg: >-
           ===== Available Updates =====
-          {{ available_updates | join('\n') if available_updates else 'No updates available.' }}
+          {{ '\n'.join(available_updates) if available_updates else 'No updates available.' }}
 
     - name: Filter user input against available updates
       ansible.builtin.set_fact:
@@ -37,9 +41,9 @@
 
     - name: Print valid packages to be updated
       ansible.builtin.debug:
-        msg: |
+        msg: >-
           ===== Valid Packages to Update =====
-          {{ valid_updates | join(', ') if valid_updates else 'None of the specified packages are updatable.' }}
+          {{ ', '.join(valid_updates) if valid_updates else 'None of the specified packages are updatable.' }}
 
     - name: Update selected valid packages
       ansible.builtin.yum:
