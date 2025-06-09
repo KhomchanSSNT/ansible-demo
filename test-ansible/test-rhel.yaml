@@ -25,6 +25,15 @@
         msg: "{{ yum_updates.stdout_lines }}"
       when: yum_updates.stdout_lines | length > 0
 
+    - name: Extract available update package names
+      ansible.builtin.set_fact:
+        available_updates: >-
+          {{ yum_updates.stdout_lines
+             | select('match', '^[a-zA-Z0-9_.+-]+\\s+\\S+')
+             | map('split')
+             | map('first')
+             | list }}
+
     - name: Filter user input against available updates
       ansible.builtin.set_fact:
         valid_updates: "{{ target_packages | select('in', available_updates) | list }}"
