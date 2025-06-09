@@ -20,13 +20,10 @@
       changed_when: false
       failed_when: false
 
-    - name: Print available updates (raw check-update output)
+    - name: Print raw check-update output
       ansible.builtin.debug:
-        msg: |
-          ===== YUM Check-Update Output =====
-          {% for line in yum_updates.stdout_lines %}
-          {{ line }}
-          {% endfor %}
+        msg: "{{ yum_updates.stdout_lines }}"
+      when: yum_updates.stdout_lines | length > 0
 
     - name: Print user-selected packages
       ansible.builtin.debug:
