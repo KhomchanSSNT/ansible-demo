@@ -4,35 +4,32 @@
   become: true
   vars:
     package_input: ""   # This is passed via AWX survey (free text)
-  
-  tasks:
 
+  tasks:
     - name: Convert package_input (string) to list
       ansible.builtin.set_fact:
         target_packages: "{{ package_input.split() }}"
 
-    - name: Get list of available updates
+    - name: Run yum check-update
       ansible.builtin.command: yum check-update
       register: yum_updates
       changed_when: false
       failed_when: false
 
-    - name: Get list of available updates
-      ansible.builtin.command: yum --quiet --assumeno update
-      register: yum_updates
-      changed_when: false
-      failed_when: false
-
-    - name: Extract package names from available updates
+    - name: Extract available update package names
       ansible.builtin.set_fact:
         available_updates: >-
-          {{ yum_updates.stdout_lines | select('match', '^[a-zA-Z0-9._+-]+\\.') | map('split') | map('first') | list }}
+          {{ yum_updates.stdout_lines
+             | select('match', '^[a-zA-Z0-9._+-]+\\.') 
+             | map('split') 
+             | map('first') 
+             | list }}
 
     - name: Print available updates
       ansible.builtin.debug:
         msg: |
           ===== Available Updates =====
-          {{ available_updates | join('\n') }}
+          {{ available_updates | join('\n') if available_updates else 'No updates available.' }}
 
     - name: Filter user input against available updates
       ansible.builtin.set_fact:
