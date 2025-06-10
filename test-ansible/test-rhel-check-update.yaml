@@ -2,6 +2,7 @@
 - name: Check RHEL Errata (CVE) Updates
   hosts: all
   gather_facts: yes
+  become: yes
 
   tasks:
     - name: Clean dnf metadata cache
@@ -19,8 +20,16 @@
         cve_summary: |
           {% set security_updates = [] %}
           {% for line in cve_updates.stdout_lines %}
-            {% if "update" in line and "security" in line %}
-              {% set _ = security_updates.append(line.split(' ')[0] + ' (' + line.split(' ')[-1].strip() + ')') %}
+            {# Skip empty lines, informational lines, and "Last metadata expiration check" lines #}
+            {% if line | length > 0 and not 'Last metadata expiration check' in line and not 'Not root' in line %}
+              {# Assuming any remaining line from 'dnf check-update --security' is a security update #}
+              {% set parts = line.split() %}
+              {% if parts | length >= 3 %} {# Ensure there are enough parts to parse #}
+                {% set package_name = parts[0] %}
+                {% set version_release = parts[1] %}
+                {% set repo = parts[2] %}
+                {% set _ = security_updates.append(package_name + ' ' + version_release + ' (' + repo + ')') %}
+              {% endif %}
             {% endif %}
           {% endfor %}
           {% if security_updates | length > 0 %}
