@@ -40,8 +40,8 @@
 
     - name: Get current date and time for filename
       ansible.builtin.set_fact:
-        current_date: "{{ ansible.builtin.now(utc=False).strftime('%d%m%Y') }}"
-        current_timestamp: "{{ ansible.builtin.now(utc=False).strftime('%H%M%S') }}"
+        current_date: "{{ now(utc=False, fmt='%d%m%Y') }}"
+        current_timestamp: "{{ now(utc=False, fmt='%H%M%S') }}"
 
     - name: Define output file path
       ansible.builtin.set_fact:
