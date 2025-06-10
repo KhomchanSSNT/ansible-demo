@@ -12,7 +12,7 @@
       ansible.builtin.command: dnf check-update --security
       register: cve_updates
       changed_when: false
-      failed_when: false 
+      failed_when: false
 
     - name: Extract and simplify CVE update information
       ansible.builtin.set_fact:
@@ -40,8 +40,8 @@
 
     - name: Get current date and time for filename
       ansible.builtin.set_fact:
-        current_date: "{{ ansible_date_time.strftime('%d%m%Y') }}"
-        current_timestamp: "{{ ansible_date_time.strftime('%H%M%S') }}"
+        current_date: "{{ ansible.builtin.now(utc=False).strftime('%d%m%Y') }}"
+        current_timestamp: "{{ ansible.builtin.now(utc=False).strftime('%H%M%S') }}"
 
     - name: Define output file path
       ansible.builtin.set_fact:
@@ -57,10 +57,10 @@
       ansible.builtin.copy:
         content: "{{ cve_summary }}"
         dest: "{{ output_file_path }}"
-      when: not output_file_stat.stat.exists # Write to the primary file if it doesn't exist
+      when: not output_file_stat.stat.exists
 
     - name: Write CVE update summary to a time-stamped file if primary exists
       ansible.builtin.copy:
         content: "{{ cve_summary }}"
         dest: "{{ backup_output_file_path }}"
-      when: output_file_stat.stat.exists # Write to the time-stamped file if the primary exists
+      when: output_file_stat.stat.exists
