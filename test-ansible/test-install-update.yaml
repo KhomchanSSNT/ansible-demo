@@ -10,4 +10,11 @@
           - KB3013816
           - KB3013769
           - KB3102429
-
+        category_names:
+          - CriticalUpdates
+          - SecurityUpdates
+          - UpdateRollups
+          - Updates
+          - Windows Server 2012 R2
+        state: installed
+        reboot: false
