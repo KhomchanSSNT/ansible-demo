@@ -5,8 +5,6 @@
   tasks:
     - name: Install selected updates by KB number
       ansible.windows.win_updates:
-        # category_names:
-        #   - SecurityUpdates
         accept_list:
           - KB3084905
           - KB3013816
