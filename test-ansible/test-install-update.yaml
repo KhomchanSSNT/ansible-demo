@@ -7,38 +7,27 @@
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
-          - CriticalUpdates
         whitelist:
           - KB3084905
-        use_wsus: true
-
 
     - name: Install KB3013816
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
-          - CriticalUpdates
         whitelist:
           - KB3013816
-        use_wsus: true
-
 
     - name: Install KB3013769
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
-          - CriticalUpdates
         whitelist:
           - KB3013769
-        use_wsus: true
-
 
     - name: Install KB3102429
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
-          - CriticalUpdates
         whitelist:
           - KB3102429
-        use_wsus: true
 
