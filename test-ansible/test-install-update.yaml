@@ -1,33 +1,15 @@
-- name: Install Specific Windows Updates via WSUS
+- name: Install specific Windows Updates via WSUS
   hosts: windows
-  gather_facts: true
+  gather_facts: yes
 
   tasks:
-    - name: Install KB3084905
+    - name: Install selected updates by KB number
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
-        whitelist:
+        accept_list:
           - KB3084905
-
-    - name: Install KB3013816
-      ansible.windows.win_updates:
-        category_names:
-          - SecurityUpdates
-        whitelist:
           - KB3013816
-
-    - name: Install KB3013769
-      ansible.windows.win_updates:
-        category_names:
-          - SecurityUpdates
-        whitelist:
           - KB3013769
-
-    - name: Install KB3102429
-      ansible.windows.win_updates:
-        category_names:
-          - SecurityUpdates
-        whitelist:
           - KB3102429
 
