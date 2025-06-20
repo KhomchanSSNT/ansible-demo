@@ -7,7 +7,7 @@ vars:
 tasks:
   - name: Split KB list from survey by spaces and ensure correct format
     set_fact:
-      parsed_kb_list: "{{ upgrade_kb | default('') | split(' ') | map('trim') | map('upper') | select('match', '^KB\d+$') | list }}"
+      parsed_kb_list: "{{ upgrade_kb | default('') | split(' ') | map('trim') | map('upper') | select('match', '^KB\\d+$') | list }}"
     when: upgrade_kb is defined and upgrade_kb | length > 0
 
   - name: Display KBs to be installed (for verification)
