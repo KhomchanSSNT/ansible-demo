@@ -1,29 +1,29 @@
-name: Install specific Windows Updates via WSUS
-hosts: windows
-gather_facts: yes
-vars:
-  upgrade_kb: []
+- name: Install specific Windows Updates via WSUS
+  hosts: windows
+  gather_facts: yes
+  vars:
+    upgrade_kb: []
 
-tasks:
-  - name: Split KB list from survey by spaces and ensure correct format
-    set_fact:
-      parsed_kb_list: "{{ upgrade_kb | default('') | split(' ') | map('trim') | map('upper') | select('match', '^KB\\d+$') | list }}"
-    when: upgrade_kb is defined and upgrade_kb | length > 0
+  tasks:
+    - name: Split KB list from survey by spaces and ensure correct format
+      set_fact:
+        parsed_kb_list: "{{ upgrade_kb | default('') | split(' ') | map('trim') | map('upper') | select('match', '^KB\\d+$') | list }}"
+      when: upgrade_kb is defined and upgrade_kb | length > 0
 
-  - name: Display KBs to be installed (for verification)
-    debug:
-      msg: "Attempting to install KBs: {{ parsed_kb_list | default([]) }}"
-    when: parsed_kb_list is defined and parsed_kb_list | length > 0
+    - name: Display KBs to be installed (for verification)
+      debug:
+        msg: "Attempting to install KBs: {{ parsed_kb_list | default([]) }}"
+      when: parsed_kb_list is defined and parsed_kb_list | length > 0
 
-  - name: Install selected updates by KB number from WSUS
-    ansible.windows.win_updates:
-      accept_list: "{{ parsed_kb_list }}"
-      category_names:
-        - CriticalUpdates
-        - SecurityUpdates
-        - UpdateRollups
-        - Updates
-      state: installed
-      reboot: false
-      server_selection: managed_server
-    when: parsed_kb_list is defined and parsed_kb_list | length > 0
+    - name: Install selected updates by KB number from WSUS
+      ansible.windows.win_updates:
+        accept_list: "{{ parsed_kb_list }}"
+        category_names:
+          - CriticalUpdates
+          - SecurityUpdates
+          - UpdateRollups
+          - Updates
+        state: installed
+        reboot: false
+        server_selection: managed_server
+      when: parsed_kb_list is defined and parsed_kb_list | length > 0
