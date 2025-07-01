@@ -1,13 +1,15 @@
 - name: Install specific Windows Updates via local
   hosts: windows
   gather_facts: yes
+  become: true
+  become_method: runas
 
   tasks:
     - name: Install the downloaded patch
       ansible.windows.win_command: >
         wusa.exe "C:\patch_update\windows8-rt-kb3102429-v2-x64_8d29e7b08475b15c5a4e874431641ea766fec853.msu" /quiet /norestart
       register: patch_install_result
-      
+
     - name: Display patch installation result
       debug:
         var: patch_install_result
@@ -16,3 +18,4 @@
       ansible.windows.win_copy:
         content: "updated success"
         dest: "C:\\Users\\Administrator\\Desktop\\update.out"
+      when: patch_install_result.rc == 0
