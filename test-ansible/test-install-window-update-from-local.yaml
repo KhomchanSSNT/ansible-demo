@@ -1,11 +1,11 @@
-- name: Install specific Windows Updates via WSUS
+- name: Install specific Windows Updates via local
   hosts: windows
   gather_facts: yes
 
   tasks:
     - name: Install the downloaded patch
-      win_package:
-        path: C:\patch_update\windows8.1-kb3102429-v2-x64_0336f192bd7bfdb01930ba46e6fdcf61b28220ed.msu
+      ansible.windows.win_command: >
+        wusa.exe "C:\patch_update\windows8-rt-kb3102429-v2-x64_8d29e7b08475b15c5a4e874431641ea766fec853.msu" /quiet /norestart
       register: patch_install_result
       
     - name: Display patch installation result
