@@ -1,4 +1,4 @@
-- name: Install specific Windows Updates via local
+- name: Install specific Windows Update with logging
   hosts: windows
   gather_facts: yes
   become: true
@@ -6,17 +6,25 @@
   become_user: Administrator
 
   tasks:
-    - name: Install the downloaded patch
+    - name: Run the downloaded update
       ansible.windows.win_command: >
         wusa.exe "C:\patch_update\Windows8.1-KB3102429-v2-x64.msu" /quiet /norestart
-      register: patch_install_result
+      register: patch_result
+      ignore_errors: true
 
-    - name: Display patch installation result
-      debug:
-        var: patch_install_result
-
-    - name: Create log file on desktop if update was installed
+    - name: Log successful update without reboot
       ansible.windows.win_copy:
-        content: "updated success"
+        content: "update installed successfully, no reboot needed"
         dest: "C:\\Users\\Administrator\\Desktop\\update.out"
-      when: patch_install_result.rc == 0
+      when: patch_result.rc == 0
+
+    - name: Log successful update with reboot required
+      ansible.windows.win_copy:
+        content: "update installed successfully, reboot required"
+        dest: "C:\\Users\\Administrator\\Desktop\\update.out"
+      when: patch_result.rc == 3010
+
+    - name: Reboot if update requires it
+      ansible.windows.win_reboot:
+        reboot_timeout: 600
+      when: patch_result.rc == 3010
