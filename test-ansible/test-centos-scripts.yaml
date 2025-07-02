@@ -1,0 +1,13 @@
+- name: Test Script for CentOS
+  hosts: controller1
+  gather_facts: yes
+  become: true
+  become_method: runas
+  become_user: root
+
+  tasks:
+    - name: Write file
+      ansible.builtin.copy:
+        content: "test"
+        dest: "/tmp/test.txt"
+        mode: "0644"
