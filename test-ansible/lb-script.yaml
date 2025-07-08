@@ -25,8 +25,8 @@
           {
             "lbcli": [{
               "action": "{{ action }}",
-              "vip": "VIP-1",
-              "rip": "RIP-1"
+              "vip": "{{ vip_name }}",
+              "rip": "{{ rip_name }}"
             }]
           }
         validate_certs: no 
