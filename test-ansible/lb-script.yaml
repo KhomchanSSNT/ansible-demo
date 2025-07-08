@@ -24,7 +24,7 @@
         body: | 
           {
             "lbcli": [{
-              "action": "halt",
+              "action": "online",
               "vip": "VIP-1",
               "rip": "RIP-1"
             }]
