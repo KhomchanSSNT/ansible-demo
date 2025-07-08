@@ -6,7 +6,7 @@
 
   vars:
     lb_api_url: "https://192.168.1.110:9443/api/v2/"
-    lb_api_key: "S3VkQWZGb1Y3cmtUeUNRNTJxbTlsdzhSMERqT01MY2E=
+    lb_api_key: "S3VkQWZGb1Y3cmtUeUNRNTJxbTlsdzhSMERqT01MY2E="
     api_username: "loadbalancer"
     api_password: "p@ssw0rd"
   
