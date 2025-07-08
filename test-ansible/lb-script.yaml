@@ -1,0 +1,33 @@
+---
+- name: Bring Loadbalancer.org Virtual Service and Real Server Online
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    lb_api_url: "https://192.168.1.110:9443/api/v2/"
+    lb_api_key: "S3VkQWZGb1Y3cmtUeUNRNTJxbTlsdzhSMERqT01MY2E=
+    api_username: "loadbalancer"
+    api_password: "p@ssw0rd"
+  
+  tasks:
+    - name: Set VIP and RIP state
+      ansible.builtin.uri:
+        url: "{{ lb_api_url }}"
+        method: POST
+        url_username: "{{ api_username }}"
+        url_password: "{{ api_password }}"
+        headers:
+          Content-Type: "application/json"
+          X-LB-APIKEY: "{{ lb_api_key }}"
+        body_format: json
+        body: | 
+          {
+            "lbcli": [{
+              "action": "halt",
+              "vip": "VIP-1",
+              "rip": "RIP-1"
+            }]
+          }
+        validate_certs: no 
+        status_code: 200 
