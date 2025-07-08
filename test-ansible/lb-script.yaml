@@ -24,10 +24,16 @@
         body: | 
           {
             "lbcli": [{
-              "action": "online",
+              "action": "{{ desired_action }}",
               "vip": "VIP-1",
               "rip": "RIP-1"
             }]
           }
         validate_certs: no 
         status_code: 200 
+      register: api_response
+      failed_when: api_response.status != 200 or (api_response.json is defined and api_response.json.lbapi is defined and api_response.json.lbapi[0].json != 'success')
+
+    - name: Print API Response
+      ansible.builtin.debug:
+        var: api_response.json
